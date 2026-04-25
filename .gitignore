@@ -1,0 +1,58 @@
+# ==========================================
+# Caches e Arquivos Compilados do Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ==========================================
+# Ambientes Virtuais (Virtual Environments)
+# ==========================================
+venv/
+.venv/
+env/
+.env/
+Pipfile.lock
+
+# ==========================================
+# Ferramentas de Testes e Cobertura
+# ==========================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ==========================================
+# Configurações de IDEs e Editores
+# ==========================================
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# Outros (Vim, macOS, Windows)
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Build e Distribuição (Futuro)
+# ==========================================
+build/
+dist/
+*.egg-info/
+
+# ==========================================
+# Dados Dinâmicos e Logs
+# ==========================================
+# Se no futuro o seu relé ou gerador salvar logs ou 
+# capturas massivas de oscilografia, descomente as linhas abaixo:
+# *.log
+# data/historico_*.csv
+
+repomix-output.xml
