@@ -1,0 +1,29 @@
+# ==========================================
+# PROCESSAMENTO MATEMÁTICO E DADOS
+# ==========================================
+# Essencial para cálculos matriciais, cálculo de variância e arrays de alta performance
+numpy>=1.24.0
+
+# Usado na simulação (csv_reader) para ler e fatiar arquivos do PSCAD facilmente
+pandas>=2.0.0
+
+# ==========================================
+# INTERFACE GRÁFICA (UI)
+# ==========================================
+# Framework base para a construção das janelas e botões
+PyQt6>=6.5.0
+
+# Biblioteca de plotagem de alta velocidade (muito mais rápida que Matplotlib para tempo real)
+pyqtgraph>=0.13.3
+
+# ==========================================
+# HARDWARE (FUTURO)
+# ==========================================
+# Necessário para ler os dados da porta USB/Serial do Arduino (serial_reader)
+pyserial>=3.5
+
+# ==========================================
+# TESTES E QUALIDADE
+# ==========================================
+# Framework para rodar os testes unitários da matemática antes de plugar na interface
+pytest>=7.3.0
