@@ -24,7 +24,7 @@ Siga o passo a passo abaixo para rodar o projeto na sua máquina local:
 Abra o seu terminal (Prompt de Comando, PowerShell ou Terminal do Linux/Mac) e digite:
 ```bash
 git clone https://github.com/joardam/proj_protetor_trafo.git
-cd NOME_DO_REPOSITORIO
+cd proj_protetor_trafo
 ```
 (Lembre-se de substituir o link acima pelo link real do seu repositório no GitHub)
 
