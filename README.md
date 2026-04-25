@@ -26,7 +26,6 @@ Abra o seu terminal (Prompt de Comando, PowerShell ou Terminal do Linux/Mac) e d
 git clone https://github.com/joardam/proj_protetor_trafo.git
 cd proj_protetor_trafo
 ```
-(Lembre-se de substituir o link acima pelo link real do seu repositório no GitHub)
 
 ### 2. Crie um Ambiente Virtual (Recomendado)
 
