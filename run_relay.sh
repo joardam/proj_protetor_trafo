@@ -19,10 +19,10 @@ echo ""
 export DISPLAY=$(ls /tmp/.X11-unix | tr 'X' ':' | head -n 1)
 
 # 2. Roda o Python (Fica rodando infinitamente até o professor fechar)
-python src/main.py
+python relay/main.py
 
 echo "🔌 Conectando ao Monitor Virtual..."
 export DISPLAY=$(ls /tmp/.X11-unix | tr 'X' ':' | head -n 1)
 
 echo "⚡ Iniciando o Relé Diferencial..."
-python src/main.py
+python relay/main.py

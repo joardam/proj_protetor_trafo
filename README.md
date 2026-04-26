@@ -56,7 +56,7 @@ pip install -r requirements.txt
 
 Para iniciar a interface gráfica do Relé, execute o arquivo principal:
 ```bash
-python src/main.py
+python relay/main.py
 ```
 
 ## 🎮 Como testar os diferentes cenários (Inrush vs Trip)
@@ -65,7 +65,7 @@ O projeto possui um Gerador de Sinais Sintéticos embutido (`SimulationReader`).
 
 Para alternar entre uma onda de Inrush (que NÃO deve gerar Trip) e uma Falha Interna (que DEVE gerar Trip), siga estes passos:
 
-1. Abra o arquivo `src/main.py` no seu editor de código.
+1. Abra o arquivo `relay/main.py` no seu editor de código.
 2. Procure a inicialização do `SimulationReader` (por volta da linha 23).
 3. Mude o parâmetro `sim_mode`:
 
@@ -79,11 +79,11 @@ Para simular Curto-circuito / Falha Interna (Relé atua e pausa):
 self.data_reader = SimulationReader(window_size=config.SAMPLES_PER_CYCLE, sim_mode='fault')
 ```
 
-4. Salve o arquivo e rode `python src/main.py` novamente. Na tela da simulação, use a checkbox "Pausar automaticamente no Trip" para analisar o exato ciclo em que a falha foi detectada.
+4. Salve o arquivo e rode `python relay/main.py` novamente. Na tela da simulação, use a checkbox "Pausar automaticamente no Trip" para analisar o exato ciclo em que a falha foi detectada.
 
 ## 📂 Estrutura do Projeto
 
-- `src/acquisition/`: Contém os leitores de dados (Gerador simulado, CSV). É a nossa porta de entrada de correntes.
-- `src/algorithm/`: O coração do relé. Contém matemática pura (Filtro Delta, Normalização e o cálculo de Variância SCM).
-- `src/ui/`: Todos os componentes visuais, botões e gráficos.
-- `src/main.py`: O orquestrador que une a interface, os dados e a matemática.
+- `relay/acquisition/`: Contém os leitores de dados (Gerador simulado, CSV). É a nossa porta de entrada de correntes.
+- `relay/algorithm/`: O coração do relé. Contém matemática pura (Filtro Delta, Normalização e o cálculo de Variância SCM).
+- `relay/ui/`: Todos os componentes visuais, botões e gráficos.
+- `relay/main.py`: O orquestrador que une a interface, os dados e a matemática.

@@ -3,8 +3,8 @@ Testes unitários focados nas lógicas principais do algoritmo SCM
 e pré-processamento.
 """
 import pytest
-# from src.algorithm.scm_calculator import SCMCalculator
-# from src.algorithm.pre_processing import PreProcessor
+# from relay.algorithm.scm_calculator import SCMCalculator
+# from relay.algorithm.pre_processing import PreProcessor
 
 def test_scm_calculation_mock() -> None:
     """
