@@ -31,9 +31,8 @@ class DeltaFilter:
         max_val = np.max(np.abs(delta_data))
         
         # TRUQUE DE ENGENHARIA PARA EVITAR AMPLIFICAÇÃO DE RUÍDO:
-        # Se o máximo for muito pequeno (quase zero, só ruído), 
-        # forçamos o max_val para 1.0 para não explodir o ruído na tela.
-        if max_val < 0.05: 
+        # CORREÇÃO 2: Limite aumentado de 0.05 para 0.5.
+        if max_val < 0.5: 
             max_val = 1.0
             
         # Equação 5: Normaliza dividindo tudo pelo máximo

@@ -60,9 +60,10 @@ class SandboxController:
         # 1. Gera o próximo ciclo de ondas matemáticas
         ip_chunk, is_chunk = self.generator.get_next_chunk(chunk_size=SAMPLES_PER_CYCLE)
         
-        # 2. Despacha por UDP na mesma velocidade e formato que um Arduino faria
-        for i in range(len(ip_chunk)):
-            self.sender.send_sample(ip_chunk[i], is_chunk[i])
+        # 2. Despacha por UDP
+        # CORREÇÃO: Envia o bloco inteiro (64 amostras) de uma única vez.
+        # Fim das perdas de pacotes do SO!
+        self.sender.send_sample(ip_chunk, is_chunk)
             
         # 3. Desenha na tela do injetor o que acabou de ser enviado
         self.window.update_plot(ip_chunk, is_chunk)

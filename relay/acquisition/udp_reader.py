@@ -12,40 +12,54 @@ class UDPReader(BaseReader):
         self.sock.bind(('127.0.0.1', port))
         self.sock.setblocking(False)
         
-        self.buffer_ip =[]
+        self.buffer_ip = []
         self.buffer_is =[]
-        self.is_live = True # Flag para a interface não fechar enquanto houver injeção
+        self.is_live = True
 
-    def read_data(self) -> Optional[Dict[str, Any]]:
-        # Se a simulação acabou e não há mais janela completa, encerra
-        if not self.is_live and len(self.buffer_ip) < self.window_size:
-            return None
-
+    def update_network(self):
+        """Drena a placa de rede de uma só vez para não travar a CPU."""
         while True:
             try:
                 data, _ = self.sock.recvfrom(65536)
                 parsed = json.loads(data.decode('utf-8'))
                 
-                # Sinalização de fim de injeção
                 if 'stop' in parsed:
                     self.is_live = False
                     break
                     
-                self.buffer_ip.append(parsed['ip'])
-                self.buffer_is.append(parsed['is'])
+                if isinstance(parsed['ip'][0], list):
+                    self.buffer_ip.extend(parsed['ip'])
+                    self.buffer_is.extend(parsed['is'])
+                else:
+                    self.buffer_ip.append(parsed['ip'])
+                    self.buffer_is.append(parsed['is'])
+                    
             except BlockingIOError:
-                break # Sem mais pacotes na fila
+                break 
             except Exception as e:
                 print(f"Erro no UDPReader: {e}")
                 break
-                
-        # Se acumulamos uma janela completa, retornamos e avançamos 1 amostra
+        
+        # PROTEÇÃO ANTI-LAG E MEMORY LEAK: 
+        # Se a janela pausar e o Sandbox continuar enviando, cortamos o excesso
+        max_buffer = self.window_size * 10
+        if len(self.buffer_ip) > max_buffer:
+            self.buffer_ip = self.buffer_ip[-max_buffer:]
+            self.buffer_is = self.buffer_is[-max_buffer:]
+
+    def read_data(self) -> Optional[Dict[str, Any]]:
+        # A matemática consumirá RAM perfeitamente ciclo a ciclo
+        if not self.is_live and len(self.buffer_ip) < self.window_size:
+            return None
+
         if len(self.buffer_ip) >= self.window_size:
             window_ip = np.array(self.buffer_ip[:self.window_size])
             window_is = np.array(self.buffer_is[:self.window_size])
             
-            self.buffer_ip.pop(0)
-            self.buffer_is.pop(0)
+            # CORREÇÃO 1: Avança 1 ciclo (64 amostras) de uma vez.
+            # Zera o travamento da interface e corrige a matemática do Filtro Delta!
+            self.buffer_ip = self.buffer_ip[self.window_size:]
+            self.buffer_is = self.buffer_is[self.window_size:]
             
             return {
                 'ip': window_ip,

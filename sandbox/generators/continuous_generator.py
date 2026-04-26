@@ -35,10 +35,12 @@ class SignalGenerator:
             t_event[t_event < 0] = 0
             
             if self.mode == 'inrush':
-                # Simulação de Inrush (apenas na fase A)
-                inrush_wave = (5.0 * np.sin(2 * np.pi * self.freq * t_event) + 
-                               1.5 * np.sin(2 * np.pi * 120 * t_event) + 
-                               3.0 * np.exp(-15 * t_event))
+                # Simulação de Inrush Realista: 
+                # Toda a onda (incluindo as harmônicas) decai suavemente
+                decay = np.exp(-3 * t_event) # Decai em aprox. 1.5 segundos
+                inrush_wave = decay * (5.0 * np.sin(2 * np.pi * self.freq * t_event) + 
+                                       1.5 * np.sin(2 * np.pi * 120 * t_event) + 
+                                       3.0) # Assimetria DC
                 ip[:, 0] += inrush_wave
                 
             elif self.mode == 'fault':
