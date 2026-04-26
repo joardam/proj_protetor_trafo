@@ -6,7 +6,8 @@ import config
 from ui.main_window import MainWindow
 
 # --- Injeção de Dependência (Escolha seu Reader aqui) ---
-from acquisition.simulation_reader import SimulationReader
+from acquisition.udp_reader import UDPReader
+# from acquisition.simulation_reader import SimulationReader
 # from acquisition.csv_reader import CSVReader
 # --------------------------------------------------------
 
@@ -18,7 +19,7 @@ class RelayApplicationController:
     def __init__(self):
         self.window = MainWindow()
     
-        self.data_reader = SimulationReader(window_size=config.SAMPLES_PER_CYCLE, sim_mode='fault')
+        self.data_reader = UDPReader(port=9999, window_size=config.SAMPLES_PER_CYCLE)
         
         self.pre_processor = PreProcessor()
         self.delta_filter = DeltaFilter(window_size=config.SAMPLES_PER_CYCLE)
@@ -42,6 +43,10 @@ class RelayApplicationController:
         raw_data = self.data_reader.read_data()
         
         if raw_data is None: 
+            # Se for uma fonte ao vivo, apenas aguardamos o próximo ciclo (não para o timer)
+            if getattr(self.data_reader, 'is_live', False):
+                return 
+                
             self.timer.stop()
             self.window.btn_toggle_sim.setText("⏹ Fim")
             self.window.btn_toggle_sim.setEnabled(False)
@@ -55,7 +60,7 @@ class RelayApplicationController:
         self.window.update_scm_plot(scm_value)
         self.window.update_trip_status(is_trip)
 
-        # Lógica de auto-pause corrigida
+        # Lógica de auto-pause
         if is_trip and self.window.is_auto_pause_enabled():
             self.timer.stop()
             self.window.set_play_state(False)
