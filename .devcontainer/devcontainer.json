@@ -1,0 +1,16 @@
+{
+    "name": "Rele Diferencial Python",
+    "image": "mcr.microsoft.com/devcontainers/python:3.10",
+    "features": {
+        "ghcr.io/devcontainers/features/desktop-lite:1": {}
+    },
+    "postCreateCommand": "sudo apt-get update && sudo apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 && pip install -r requirements.txt",
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "ms-python.python"
+            ]
+        }
+    }
+}
