@@ -1,47 +1,77 @@
-import socket
-import json
-import time
-import argparse
 import sys
 import os
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QTimer
 
-# Adiciona o diretório raiz ao path para importar as lógicas e configurações do relé
+# Adiciona o diretório raiz ao path para podermos importar o config do relé
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from relay.acquisition.simulation_reader import SimulationReader
+
+from sandbox.generators.continuous_generator import SignalGenerator
+from sandbox.network.udp_sender import UDPSender
+from sandbox.ui.main_window import SandboxWindow
 from relay.config import SAMPLES_PER_CYCLE
 
-def main():
-    parser = argparse.ArgumentParser(description="Sandbox - Injetor de Sinais")
-    parser.add_argument('--mode', type=str, default='fault', choices=['fault', 'inrush', 'normal'],
-                        help="Modo de simulação do injetor")
-    args = parser.parse_args()
-
-    print(f"Sandbox (Injetor de Sinais) iniciado! Modo selecionado: {args.mode}")
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    
-    # Reaproveita a excelente lógica do gerador existente sem duplicar código
-    generator = SimulationReader(window_size=SAMPLES_PER_CYCLE, sim_mode=args.mode)
-    ip_data = generator.ip_data
-    is_data = generator.is_data
-    
-    print("\nPronto para injetar sinais!")
-    input("Pressione ENTER para iniciar a injeção via UDP na porta 9999...")
-    
-    print("Enviando amostras...")
-    for i in range(len(ip_data)):
-        payload = {
-            'ip': ip_data[i].tolist(),
-            'is': is_data[i].tolist()
-        }
-        sock.sendto(json.dumps(payload).encode('utf-8'), ('127.0.0.1', 9999))
+class SandboxController:
+    def __init__(self):
+        self.window = SandboxWindow()
+        self.generator = SignalGenerator(samples_per_cycle=SAMPLES_PER_CYCLE)
+        self.sender = UDPSender()
         
-        # Controla a taxa de envio para não estourar o buffer UDP do sistema
-        if i % 10 == 0:
-            time.sleep(0.005)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._process_and_send)
+        
+        # Conexões dos cliques dos botões
+        self.window.btn_normal.clicked.connect(self.inject_normal)
+        self.window.btn_inrush.clicked.connect(self.inject_inrush)
+        self.window.btn_fault.clicked.connect(self.inject_fault)
+        self.window.btn_stop.clicked.connect(self.stop_injection)
+        
+        self.is_running = False
+
+    def inject_normal(self):
+        self.generator.set_mode('normal')
+        self.window.set_status("Injetando Sinal Normal", "#28a745") # Verde
+        self._start_engine()
+
+    def inject_inrush(self):
+        self.generator.set_mode('inrush')
+        self.window.set_status("Injetando Inrush", "#ffc107", "black") # Amarelo (fonte preta)
+        self._start_engine()
+
+    def inject_fault(self):
+        self.generator.set_mode('fault')
+        self.window.set_status("Injetando Falha Interna", "#dc3545") # Vermelho
+        self._start_engine()
+
+    def stop_injection(self):
+        if self.is_running:
+            self.timer.stop()
+            self.sender.send_stop()
+            self.is_running = False
+            self.window.set_status("PARADO / DESCONECTADO", "gray")
+
+    def _start_engine(self):
+        if not self.is_running:
+            self.is_running = True
+            # Frequência do pulso em MS: 1 ciclo a 60Hz leva ~16.6ms
+            self.timer.start(16)
+
+    def _process_and_send(self):
+        # 1. Gera o próximo ciclo de ondas matemáticas
+        ip_chunk, is_chunk = self.generator.get_next_chunk(chunk_size=SAMPLES_PER_CYCLE)
+        
+        # 2. Despacha por UDP na mesma velocidade e formato que um Arduino faria
+        for i in range(len(ip_chunk)):
+            self.sender.send_sample(ip_chunk[i], is_chunk[i])
             
-    # Envia sinal de fim para que a interface trave e mostre o fim
-    sock.sendto(json.dumps({'stop': True}).encode('utf-8'), ('127.0.0.1', 9999))
-    print("Injeção finalizada!")
+        # 3. Desenha na tela do injetor o que acabou de ser enviado
+        self.window.update_plot(ip_chunk, is_chunk)
+
+def main():
+    app = QApplication(sys.argv)
+    controller = SandboxController()
+    controller.window.show()
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
