@@ -12,6 +12,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Relé Diferencial SCM - Embarcado (ROPEC 2024)")
+        self.resize(800, 600)  # Diminui o tamanho base
+        self.showMaximized()   # Força a janela a se adaptar ao tamanho da tela
+        self._setup_ui()
         self.resize(1024, 768)
         self._setup_ui()
 
